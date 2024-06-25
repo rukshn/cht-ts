@@ -77,6 +77,8 @@
     "@commitlint/config-conventional": "^13.2.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
+    "@types/bun": "latest",
+    "@types/node": "^20.14.8",
     "body-parser": "^1.20.2",
     "chai": "^4.3.10",
     "chai-as-promised": "^7.1.1",
@@ -94,5 +96,8 @@
     "rewire": "^5.0.0",
     "semantic-release": "^18.0.0",
     "sinon": "^8.1.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
   }
 }
