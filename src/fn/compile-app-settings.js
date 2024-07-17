@@ -113,7 +113,7 @@ const compileAppSettingsForProject = async (projectDir, options) => {
       // validate forms object
       const validate = validateAppSettings.validateFormsSchema(formSettings);
       if (!validate.valid) {
-        throw new Error(`Invalid form settings: ${validate.error}`);
+        return new Error(`Invalid form settings: ${validate.error}`);
       }
       appSettings.forms = formSettings;
     }
@@ -125,7 +125,7 @@ const compileAppSettingsForProject = async (projectDir, options) => {
       const validate =
         validateAppSettings.validateScheduleSchema(scheduleSettings);
       if (!validate.valid) {
-        throw new Error(`Invalid schedule settings: ${validate.error}`);
+        return new Error(`Invalid schedule settings: ${validate.error}`);
       }
       appSettings.schedules = scheduleSettings;
     }

@@ -1,32 +1,45 @@
-const semver = require('semver');
+const semver = require("semver");
 
-const api = require('../lib/api');
-const environment = require('../lib/environment');
-const fs = require('../lib/sync-fs');
-const { getValidApiVersion } = require('../lib/get-api-version');
-const { info } = require('../lib/log');
-const nools = require('../lib/nools-utils');
-const { APP_SETTINGS_DIR_PATH, APP_SETTINGS_JSON_PATH } = require('../lib/project-paths');
+const api = require("../lib/api");
+const environment = require("../lib/environment");
+const fs = require("../lib/sync-fs");
+const { getValidApiVersion } = require("../lib/get-api-version");
+const { info } = require("../lib/log");
+const nools = require("../lib/nools-utils");
+const {
+  APP_SETTINGS_DIR_PATH,
+  APP_SETTINGS_JSON_PATH,
+} = require("../lib/project-paths");
 
-const uploadAppSettings = async api => {
-  const appSettings = JSON.parse(fs.read(`${environment.pathToProject}/${APP_SETTINGS_JSON_PATH}`));
+const uploadAppSettings = async (api) => {
+  const appSettings = JSON.parse(
+    fs.read(`${environment.pathToProject}/${APP_SETTINGS_JSON_PATH}`),
+  );
   await augmentDeclarativeWithNoolsBoilerplate(appSettings);
-  
-  const requestResult = await api.updateAppSettings(JSON.stringify(appSettings));
+  console.log("nools done");
+  const requestResult = await api.updateAppSettings(
+    JSON.stringify(appSettings),
+  );
   const json = JSON.parse(requestResult);
+  console.log(json);
   // As per https://github.com/medic/cht-core/issues/3674, this endpoint
   // will return 200 even when upload fails.
   if (!json.success) {
-    throw new Error(json.error);
+    return new Error(json.error);
   }
 
-  if ('updated' in json) {
+  if ("updated" in json) {
     // the `updated` param was added in 3.9
     // https://github.com/medic/cht-core/issues/6315
     if (!json.updated) {
-      info('Settings not updated - no changes detected');
+      info("Settings not updated - no changes detected");
+      return {
+        updated: false,
+        message: "settings not updated - no changes detected",
+      };
     } else {
-      info('Settings updated successfully');
+      info("Settings updated successfully");
+      return { updated: true, message: "settings updated successfully" };
     }
   }
 };
@@ -39,9 +52,12 @@ async function augmentDeclarativeWithNoolsBoilerplate(appSettings) {
   }
 
   const actualCoreVersion = await getValidApiVersion();
-  const addNoolsBoilerplate = actualCoreVersion && semver.lt(actualCoreVersion, '4.2.0-dev');
+  const addNoolsBoilerplate =
+    actualCoreVersion && semver.lt(actualCoreVersion, "4.2.0-dev");
   if (addNoolsBoilerplate) {
-    appSettings.tasks.rules = nools.addBoilerplateToCode(appSettings.tasks.rules);
+    appSettings.tasks.rules = nools.addBoilerplateToCode(
+      appSettings.tasks.rules,
+    );
 
     // do not set the isDeclarative flag when the code has nools boilerplate
     delete appSettings.tasks.isDeclarative;
@@ -53,5 +69,5 @@ module.exports = {
   APP_SETTINGS_DIR_PATH,
   APP_SETTINGS_JSON_PATH,
   requiresInstance: true,
-  execute: () => uploadAppSettings(api())
+  execute: () => uploadAppSettings(api()),
 };

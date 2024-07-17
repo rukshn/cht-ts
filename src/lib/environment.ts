@@ -38,9 +38,9 @@ const initialize = (
   skipValidate: boolean,
   sessionToken: string,
 ) => {
-  if (state.initialized) {
-    throw Error("environment is already initialized");
-  }
+  // if (state.initialized) {
+  // throw Error("environment is already initialized");
+  //}
 
   Object.assign(state, {
     apiUrl: apiUrl && apiUrl.toString(),
